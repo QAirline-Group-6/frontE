@@ -67,8 +67,9 @@ export default function DangKyPage() {
     try {
       // Gọi API đăng ký
       const registerData = {
+        username: formData.hoTen,
         email: formData.email,
-        password: formData.matKhau,
+        password: formData.matKhau, 
         phone: formData.soDienThoai
       };
 
