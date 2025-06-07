@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import FlightList from '../FlightList/flightList';
 import Passenger from '../../booking/Passenger/passenger';
-import Seat from '../../booking/Seat/seat';
+import SeatSelectionModal from '../../booking/Seat/seat';
 import Payment from '../../booking/Payment/payment';
 import ReviewBooking from '../../booking/ReviewBooking/ReviewBooking';
 import styles from './flightBooking.module.scss';
+import bookingService from '@/api/services/bookingService';
+import { BookingData } from '@/types/booking';
 
 // Define Flight interface
 interface Flight {
@@ -50,6 +52,7 @@ interface PassengerData {
 }
 
 interface FlightDetails {
+  flight_id: number;
   flightNumber: string;
   departure: {
     time: string;
@@ -88,6 +91,7 @@ interface SeatSelectionProps {
 interface ReviewBookingProps {
   passengerData: PassengerData[];
   selectedSeats: string[];
+  returnSelectedSeats: string[];
   flightDetails: FlightDetails;
   returnFlightDetails?: FlightDetails;
   isRoundTrip?: boolean;
@@ -101,7 +105,14 @@ interface PaymentSuccessProps {
 }
 
 // Cập nhật kiểu dữ liệu BookingStep với 3 bước riêng biệt
-type BookingStep = 'passenger-seat' | 'review-booking' | 'payment-success';
+type BookingStep = 'passenger-seat' | 'review-booking' | 'payment' | 'payment-success';
+
+// Add this function before the FlightBookingApp component
+const generateBookingCode = () => {
+  const timestamp = new Date().getTime();
+  const random = Math.floor(Math.random() * 1000);
+  return `B${timestamp}${random}`;
+};
 
 const FlightBookingApp: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<BookingStep>('passenger-seat');
@@ -119,6 +130,8 @@ const FlightBookingApp: React.FC = () => {
   
   // Booking data
   const [bookingCode, setBookingCode] = useState<string>('');
+  const [bookingId, setBookingId] = useState<string>('');
+  const [customerId, setCustomerId] = useState<string>('');
 
   // State để lưu ngày chuyến bay
   const [flightDate, setFlightDate] = useState<string>('');
@@ -128,6 +141,9 @@ const FlightBookingApp: React.FC = () => {
 
   // State để kiểm soát trạng thái loading
   const [isLoading, setIsLoading] = useState(false);
+
+  // State để lưu thông tin ghế đã chọn cho return flight
+  const [returnSelectedSeats, setReturnSelectedSeats] = useState<string[]>([]);
 
   // Effect để tải dữ liệu booking từ localStorage khi component mount
   useEffect(() => {
@@ -148,6 +164,10 @@ const FlightBookingApp: React.FC = () => {
           setSelectedReturnFlight(data.returnFlight.flight);
         }
         
+        // Set booking and customer IDs
+        setBookingId(data.bookingId || '');
+        setCustomerId(data.customerId || '');
+        
         setCurrentStep('passenger-seat');
       } else {
         console.error("Error: No booking data found in localStorage.");
@@ -163,10 +183,22 @@ const FlightBookingApp: React.FC = () => {
     setIsSeatModalOpen(true);
   };
 
-  const handleSeatConfirm = (seats: string[]) => {
-    setSelectedSeats(seats);
-    setIsSeatModalOpen(false);
-    // Sau khi chọn ghế xong, chuyển sang bước xem lại
+  const handleSeatConfirm = (selectedSeats: { outbound: string[], return: string[] }) => {
+    // Lưu thông tin ghế đã chọn vào localStorage
+    const bookingData = {
+      ...JSON.parse(localStorage.getItem('bookingData') || '{}'),
+      selectedSeats: selectedSeats.outbound,
+      returnSelectedSeats: selectedSeats.return
+    };
+    localStorage.setItem('bookingData', JSON.stringify(bookingData));
+
+    // Cập nhật state
+    setSelectedSeats(selectedSeats.outbound);
+    if (tripType === 'round-trip') {
+      setReturnSelectedSeats(selectedSeats.return);
+    }
+
+    // Chuyển sang bước tiếp theo
     setCurrentStep('review-booking');
   };
 
@@ -179,81 +211,76 @@ const FlightBookingApp: React.FC = () => {
   };
 
   // Hàm mới để xác nhận booking và chuyển sang thanh toán
-  const handleReviewConfirm = async () => {
+  const handleReviewConfirm = async (bookingData: any) => {
     try {
       setIsLoading(true);
-      
-      // Get the first passenger data since we're handling single passenger case
-      const passenger = passengerData[0];
-      const flightDetails = getFlightDetails();
       
       if (!selectedOutboundFlight) {
         throw new Error('Không tìm thấy thông tin chuyến bay');
       }
 
-      if (!passenger) {
+      if (passengerData.length === 0) {
         throw new Error('Không tìm thấy thông tin hành khách');
       }
 
-      if (!selectedSeats.length) {
+      if (selectedSeats.length === 0) {
         throw new Error('Vui lòng chọn ghế');
       }
 
-      // Format date to YYYY-MM-DD
-      const formattedBirthDate = new Date(passenger.birthDate).toISOString().split('T')[0];
-      
-      // Prepare the booking data
-      const bookingData = {
-        user_id: 11, // This should come from your authentication system
-        flight_id: selectedOutboundFlight.flight_id,
-        seat_id: parseInt(selectedSeats[0]), // Convert seat string to number
-        total_amount: flightDetails[0].price,
-        price: flightDetails[0].price,
-        status: "confirmed",
-        customer: {
-          first_name: passenger.firstName,
-          last_name: passenger.lastName,
-          address: passenger.address,
-          gender: passenger.gender,
-          date_of_birth: formattedBirthDate,
-          id_card_number: passenger.idNumber,
-          status: "confirmed"
-        }
-      };
-
-      console.log('Sending booking data:', bookingData); // Debug log
-
-      // Make the API call
-      const response = await fetch('http://localhost:4000/bookings/book', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(bookingData)
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Đặt vé thất bại');
+      // Validate data before sending
+      if (!bookingData.user_id || !bookingData.total_amount || !bookingData.bookings.length) {
+        throw new Error('Dữ liệu booking không hợp lệ');
       }
-      
-      // Set booking code from response
-      setBookingCode(responseData.bookingCode || 'VN' + Math.random().toString(36).substr(2, 6).toUpperCase());
-      
-      // Clear booking data from localStorage
-      localStorage.removeItem('selectedBooking');
-      
-      // Move to success step
-      setCurrentStep('payment-success');
-    } catch (error: any) {
-      console.error('Error making booking:', error);
-      alert(error.message || 'Có lỗi xảy ra khi đặt vé. Vui lòng thử lại.');
+
+      for (const booking of bookingData.bookings) {
+        if (!booking.flight_id || !booking.tickets.length) {
+          throw new Error('Dữ liệu chuyến bay không hợp lệ');
+        }
+        for (const ticket of booking.tickets) {
+          if (!ticket.customer.first_name || !ticket.customer.last_name || !ticket.customer.id_card_number || !ticket.seat_id || !ticket.price) {
+            throw new Error('Dữ liệu vé không hợp lệ');
+          }
+        }
+      }
+
+      console.log('Sending booking data:', JSON.stringify(bookingData, null, 2));
+
+      try {
+        // Make the API call using booking service
+        const responseData = await bookingService.createBooking(bookingData);
+        console.log('Booking response:', responseData);
+
+        if (!responseData || !responseData.booking || !responseData.booking.booking_code) {
+          throw new Error('Không nhận được mã đặt vé từ server');
+        }
+
+        // Clear booking data from localStorage
+        localStorage.removeItem('selectedBooking');
+
+        // Set booking code and move to payment step
+        setBookingCode(responseData.booking.booking_code);
+        setCurrentStep('payment-success');
+
+      } catch (apiError: any) {
+        console.error('API Error:', apiError);
+        if (apiError.response) {
+          console.error('Error response:', apiError.response.data);
+          throw new Error(apiError.response.data.message || 'Có lỗi xảy ra khi đặt vé');
+        } else if (apiError.request) {
+          console.error('No response received:', apiError.request);
+          throw new Error('Không nhận được phản hồi từ máy chủ');
+        } else {
+          console.error('Error setting up request:', apiError.message);
+          throw new Error('Có lỗi xảy ra khi gửi yêu cầu đặt vé');
+        }
+      }
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      alert(error instanceof Error ? error.message : 'Có lỗi xảy ra khi đặt vé');
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   // Hàm xử lý quay lại bước trước (điều chỉnh cho 3 bước)
   const handleGoBack = () => {
@@ -289,6 +316,7 @@ const FlightBookingApp: React.FC = () => {
     if (selectedOutboundFlight) {
       const outboundPrice = selectedOutboundFlight.price[selectedFareType];
       details.push({
+        flight_id: selectedOutboundFlight.flight_id,
         flightNumber: selectedOutboundFlight.flight_number,
         departure: {
           time: selectedOutboundFlight.departure.time,
@@ -310,6 +338,7 @@ const FlightBookingApp: React.FC = () => {
     if (tripType === 'round-trip' && selectedReturnFlight) {
       const returnPrice = selectedReturnFlight.price[selectedFareType];
       details.push({
+        flight_id: selectedReturnFlight.flight_id,
         flightNumber: selectedReturnFlight.flight_number,
         departure: {
           time: selectedReturnFlight.departure.time,
@@ -354,15 +383,19 @@ const FlightBookingApp: React.FC = () => {
               isRoundTrip={tripType === 'round-trip'}
               returnFlightDetails={flightDetails[1]}
             />
-            <Seat
-              isOpen={isSeatModalOpen}
-              onClose={() => setIsSeatModalOpen(false)}
-              onConfirm={handleSeatConfirm}
-              passengerCount={passengerCount}
-              flightNumber={selectedOutboundFlight.flight_number}
-              isRoundTrip={tripType === 'round-trip'}
-              returnFlightNumber={selectedReturnFlight?.flight_number}
-            />
+            {isSeatModalOpen && (
+              <SeatSelectionModal
+                isOpen={isSeatModalOpen}
+                onClose={() => setIsSeatModalOpen(false)}
+                onConfirm={handleSeatConfirm}
+                passengerCount={passengerCount}
+                flightNumber={selectedOutboundFlight.flight_number}
+                isRoundTrip={tripType === 'round-trip'}
+                returnFlightNumber={selectedReturnFlight?.flight_number}
+                bookingId={bookingId}
+                customerId={customerId}
+              />
+            )}
           </div>
         );
       
@@ -372,6 +405,7 @@ const FlightBookingApp: React.FC = () => {
             <ReviewBooking
               passengerData={passengerData}
               selectedSeats={selectedSeats}
+              returnSelectedSeats={returnSelectedSeats}
               flightDetails={flightDetails[0]}
               returnFlightDetails={flightDetails[1]}
               isRoundTrip={tripType === 'round-trip'}

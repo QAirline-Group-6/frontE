@@ -25,7 +25,7 @@
   display: flex;
   justify-content: center;
   margin-bottom: 24px;
-  
+
   svg {
     animation: scaleIn 0.5s ease-out;
   }
@@ -45,30 +45,76 @@
   padding: 24px;
   margin-bottom: 24px;
   animation: slideUp 0.6s ease-out 0.4s both;
-  
+
   .bookingLabel {
     font-size: 16px;
     color: #666;
     margin: 0 0 12px 0;
   }
-  
+
+  .bookingCodeContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
   .bookingCode {
     font-size: 32px;
     font-weight: 700;
     color: #4CAF50;
     letter-spacing: 2px;
     font-family: 'Courier New', monospace;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+  }
+
+  .copyButton {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #e0e0e0;
+      color: #4CAF50;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .bookingNote {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+    font-style: italic;
   }
 }
 
 .message {
   animation: slideUp 0.6s ease-out 0.6s both;
-  
+
   p {
     font-size: 16px;
     color: #666;
     line-height: 1.6;
-    margin: 0 0 32px 0;
+    margin: 0 0 16px 0;
+  }
+
+  .instruction {
+    font-size: 14px;
+    color: #4CAF50;
+    font-weight: 500;
+    margin-top: 8px;
   }
 }
 
@@ -83,12 +129,12 @@
   cursor: pointer;
   transition: all 0.3s ease;
   animation: slideUp 0.6s ease-out 0.8s both;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
@@ -105,7 +151,7 @@
   border-left: 4px solid #4CAF50;
   animation: slideInRight 0.5s ease-out 1s both;
   z-index: 1;
-  
+
   .notificationContent {
     h2 {
       font-size: 16px;
@@ -113,7 +159,7 @@
       color: #333;
       margin: 0 0 4px 0;
     }
-    
+
     p {
       font-size: 14px;
       color: #666;
@@ -129,6 +175,7 @@
     transform: scale(0);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -137,9 +184,10 @@
 
 @keyframes slideUp {
   from {
-    transform: translateY(30px);
+    transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -151,6 +199,7 @@
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -183,9 +232,12 @@
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-20px);
   }
@@ -196,38 +248,38 @@
   .container {
     padding: 16px;
   }
-  
+
   .content {
     padding: 32px 24px;
   }
-  
+
   .title {
     font-size: 24px;
   }
-  
+
   .bookingInfo {
     padding: 20px;
-    
+
     .bookingCode {
       font-size: 24px;
     }
   }
-  
+
   .homeButton {
     width: 100%;
     padding: 14px;
   }
-  
+
   .notification {
     bottom: 16px;
     right: 16px;
     left: 16px;
-    
+
     .notificationContent {
       h2 {
         font-size: 14px;
       }
-      
+
       p {
         font-size: 13px;
       }
