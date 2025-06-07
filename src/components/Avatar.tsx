@@ -64,7 +64,7 @@ const Avatar: React.FC<AvatarProps> = ({ onLogout }) => {
               <span>Thông tin tài khoản</span>
             </button>
 
-            <button 
+            {/* <button 
               className={styles.menuItem}
               onClick={() => {
                 router.push('/booking_management');
@@ -73,7 +73,7 @@ const Avatar: React.FC<AvatarProps> = ({ onLogout }) => {
             >
               <LuTicket className={styles.icon} />
               <span>Quản lý vé</span>
-            </button>
+            </button> */}
             
             <button onClick={onLogout} className={styles.menuItem}>
               <LuLogOut className={styles.icon} />
