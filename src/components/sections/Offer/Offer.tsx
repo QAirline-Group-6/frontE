@@ -13,7 +13,7 @@ import { BsArrowRightShort } from "react-icons/bs";
 
 // Import images
 import Image from "next/image";
-import img1 from "../../../../public/Assets/airlines.jpg";
+import img1 from "../../../../public/Assets/airlinevn.jpg";
 import img2 from "../../../../public/Assets/bamboo.jpg";
 import img3 from "../../../../public/Assets/vietjet.png";
 

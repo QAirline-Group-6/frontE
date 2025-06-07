@@ -89,6 +89,11 @@ const Navbar = () => {
                 Quản lý vé
               </Link>
             </li>
+            <li className={styles.navItem}>
+              <Link href="/blogs" className={styles.navLink}>
+                Tin tức
+              </Link>
+            </li>
 
             <li className={styles.navItem}>
               <Link href="/contact" className={styles.navLink}>
