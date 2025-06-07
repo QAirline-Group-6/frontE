@@ -335,20 +335,8 @@ const FlightSearch = () => {
             </div>
           </div>
         </div>
-        
-        <button 
-          type="submit" 
-          className={`${styles.searchBtn} ${!isFormValid() || isLoading ? styles.disabled : ''}`}
-          disabled={!isFormValid() || isLoading}
-        >
-          {isLoading ? (
-            <>
-              <span className={styles.loadingSpinner}></span>
-              Đang tìm kiếm...
-            </>
-          ) : (
-            "Tìm chuyến bay"
-          )}
+        <button type="submit" className={styles.searchBtn} disabled={isLoading || !isFormValid()}>
+          {isLoading ? "Đang tìm kiếm..." : "Tìm chuyến bay"}
         </button>
       </form>
     </div>
