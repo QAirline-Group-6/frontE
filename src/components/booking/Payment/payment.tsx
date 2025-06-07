@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './payment.module.scss';
+import { FaCopy, FaCheck } from 'react-icons/fa';
 
 interface PaymentSuccessProps {
   bookingCode: string;
@@ -12,6 +13,14 @@ const Payment: React.FC<PaymentSuccessProps> = ({
   onReturnHome,
   isRoundTrip,
 }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(bookingCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -32,11 +41,26 @@ const Payment: React.FC<PaymentSuccessProps> = ({
         
         <div className={styles.bookingInfo}>
           <p className={styles.bookingLabel}>Mã đặt vé của bạn là:</p>
-          <div className={styles.bookingCode}>{bookingCode}</div>
+          <div className={styles.bookingCodeContainer}>
+            <div className={styles.bookingCode}>{bookingCode}</div>
+            <button 
+              className={styles.copyButton}
+              onClick={handleCopyCode}
+              title="Sao chép mã đặt vé"
+            >
+              {copied ? <FaCheck /> : <FaCopy />}
+            </button>
+          </div>
+          <p className={styles.bookingNote}>
+            Mã đặt vé này sẽ hết hạn sau 24 giờ. Vui lòng lưu lại để sử dụng khi cần thiết.
+          </p>
         </div>
         
         <div className={styles.message}>
           <p>Cảm ơn quý khách đã đặt vé. Chúc quý khách có chuyến bay vui vẻ!</p>
+          <p className={styles.instruction}>
+            Vui lòng sử dụng mã đặt vé này khi làm thủ tục check-in tại sân bay.
+          </p>
         </div>
         
         <button 
