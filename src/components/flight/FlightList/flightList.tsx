@@ -330,7 +330,7 @@ const FlightList: React.FC<FlightListProps> = ({
                 >
                   <div className={styles.fareType}>Phổ thông</div>
                   <div className={styles.farePrice}>{formatPrice(flight.price.economy)}</div>
-                  <div className={styles.seatsLeft}>Còn {Math.floor(flight.available_seats * 0.7)} ghế</div>
+                  {/* <div className={styles.seatsLeft}>Còn {Math.floor(flight.available_seats * 0.7)} ghế</div> */}
                 </div>
                 <div
                   className={`${styles.fareOption} ${styles.business} ${
@@ -343,7 +343,7 @@ const FlightList: React.FC<FlightListProps> = ({
                 >
                   <div className={styles.fareType}>Thương gia</div>
                   <div className={styles.farePrice}>{formatPrice(flight.price.business)}</div>
-                  <div className={styles.seatsLeft}>Còn {Math.floor(flight.available_seats * 0.3)} ghế</div>
+                  {/* <div className={styles.seatsLeft}>Còn {Math.floor(flight.available_seats * 0.3)} ghế</div> */}
                 </div>
               </div>
             </div>
