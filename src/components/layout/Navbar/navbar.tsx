@@ -85,8 +85,8 @@ const Navbar = () => {
             </li>
 
             <li className={styles.navItem}>
-              <Link href="/booking" className={styles.navLink}>
-                Đặt vé
+              <Link href="/booking_management" className={styles.navLink}>
+                Quản lý vé
               </Link>
             </li>
 
