@@ -72,7 +72,12 @@ export default function LoginPage() {
         dispatch(loginSuccess({ user: response.user, token: response.token }));
         
         toast.success('Đăng nhập thành công!');
-        router.push("/");
+        
+        if (response.user.role === 'admin') {
+            router.push("/admin/dashboard");
+        } else {
+            router.push("/");
+        }
       }
     } catch (err: any) {
       // Xử lý các loại lỗi khác nhau
