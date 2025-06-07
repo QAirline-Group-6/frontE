@@ -17,6 +17,7 @@ export interface PassengerData {
 }
 
 export interface FlightDetails {
+  flight_id: number;
   flightNumber: string;
   departure: {
     time: string;
