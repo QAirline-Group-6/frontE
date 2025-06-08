@@ -63,17 +63,6 @@ const Avatar: React.FC<AvatarProps> = ({ onLogout }) => {
               <RxAvatar className={styles.icon} />
               <span>Thông tin tài khoản</span>
             </button>
-
-            {/* <button 
-              className={styles.menuItem}
-              onClick={() => {
-                router.push('/booking_management');
-                setIsOpen(false);
-              }}
-            >
-              <LuTicket className={styles.icon} />
-              <span>Quản lý vé</span>
-            </button> */}
             
             <button onClick={onLogout} className={styles.menuItem}>
               <LuLogOut className={styles.icon} />
