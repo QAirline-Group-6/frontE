@@ -5,9 +5,8 @@ import styles from './customers.module.scss';
 import { FaSearch } from 'react-icons/fa';
 
 interface Customer {
-  customer_id: number;
-  first_name: string;
-  last_name: string;
+  user_id: number;
+  username: string;
   email: string;
   phone: string;
 }
@@ -23,7 +22,17 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/customers');
+      const token = localStorage.getItem('token'); // Get token from localStorage
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('http://localhost:4000/users/customers', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -35,10 +44,10 @@ export default function CustomersPage() {
   };
 
   const filteredCustomers = customers.filter(customer =>
-    customer.customer_id.toString().includes(searchTerm) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm) ||
-    `${customer.first_name} ${customer.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
+    (customer.user_id?.toString() || '').includes(searchTerm) ||
+    (customer.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (customer.phone || '').includes(searchTerm) ||
+    `${customer.username || ''}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Format date to Vietnamese locale
@@ -81,13 +90,12 @@ export default function CustomersPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredCustomers.map((customer) => (
-              <tr key={customer.customer_id}>
-                <td>{customer.customer_id}</td>
-                <td>{`${customer.first_name} ${customer.last_name}`}</td>
+            {filteredCustomers.map((customer, index) => (
+              <tr key={`${customer.user_id}-${customer.email}-${index}`}>
+                <td>{customer.user_id}</td>
+                <td>{customer.username}</td>
                 <td>{customer.email}</td>
                 <td>{customer.phone}</td>
-
               </tr>
             ))}
           </tbody>

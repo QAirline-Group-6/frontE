@@ -25,7 +25,17 @@ export default function TicketsPage() {
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch('/api/tickets');
+      const token = localStorage.getItem('token'); // Get token from localStorage
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('http://localhost:4000/bookings/ticket', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

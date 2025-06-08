@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './payment.module.scss';
 import { FaCopy, FaCheck } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 interface PaymentSuccessProps {
   bookingCode: string;
@@ -14,11 +15,16 @@ const Payment: React.FC<PaymentSuccessProps> = ({
   isRoundTrip,
 }) => {
   const [copied, setCopied] = useState(false);
+  const router = useRouter();
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(bookingCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleReturnHome = () => {
+    router.push('/');
   };
 
   return (
@@ -65,7 +71,7 @@ const Payment: React.FC<PaymentSuccessProps> = ({
         
         <button 
           className={styles.homeButton}
-          onClick={onReturnHome}
+          onClick={handleReturnHome}
         >
           Quay về trang chủ
         </button>

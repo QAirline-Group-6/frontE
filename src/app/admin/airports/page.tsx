@@ -32,7 +32,7 @@ export default function AirportsPage() {
 
   const fetchAirports = async () => {
     try {
-      const response = await fetch('/api/airports');
+      const response = await fetch('http://localhost:4000/airports');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -46,10 +46,12 @@ export default function AirportsPage() {
   const handleAddAirport = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/airports', {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:4000/airports/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(newAirport),
       });
@@ -83,10 +85,14 @@ export default function AirportsPage() {
         country: selectedAirport.country,
       };
 
-      const response = await fetch(`/api/airports/${selectedAirport.airport_id}`, {
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`http://localhost:4000/airports/update/${selectedAirport.airport_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Add token to headers
         },
         body: JSON.stringify(airportToUpdate),
       });
@@ -106,8 +112,12 @@ export default function AirportsPage() {
   const handleDeleteAirport = async (id: number) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa sân bay này?')) {
       try {
-        const response = await fetch(`/api/airports/${id}`, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:4000/airports/del/${id}`, {
           method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
 
         if (response.ok) {

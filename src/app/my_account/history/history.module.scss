@@ -30,6 +30,7 @@
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -195,7 +196,8 @@
 .historyTable {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px; /* Ensure table is not too small on narrow screens */
+    min-width: 600px;
+    /* Ensure table is not too small on narrow screens */
 }
 
 .tableHeader {

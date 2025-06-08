@@ -379,23 +379,23 @@ const SeatSelectionModal: React.FC<SeatSelectionProps> = ({
                 <div className={styles.legend}>
                   <div className={styles.legendItem}>
                     <div className={`${styles.seatExample} ${styles.available}`}></div>
-                    <span>Ghế trống</span>
+                    {/* <span>Ghế trống</span> */}
                   </div>
                   <div className={styles.legendItem}>
                     <div className={`${styles.seatExample} ${styles.occupied}`}></div>
-                    <span>Đã được đặt</span>
+                    {/* <span>Đã được đặt</span> */}
                   </div>
                   <div className={styles.legendItem}>
                     <div className={`${styles.seatExample} ${styles.selected}`}></div>
-                    <span>Ghế bạn chọn</span>
+                    {/* <span>Ghế bạn chọn</span> */}
                   </div>
                   <div className={styles.legendItem}>
                     <div className={`${styles.seatExample} ${styles.business}`}></div>
-                    <span>Business Class</span>
+                    {/* <span>Business Class</span> */}
                   </div>
                   <div className={styles.legendItem}>
                     <div className={`${styles.seatExample} ${styles.economy}`}></div>
-                    <span>Economy Class</span>
+                    {/* <span>Economy Class</span> */}
                   </div>
                 </div>
 

@@ -30,7 +30,12 @@ export default function AircraftsPage() {
 
   const fetchAircrafts = async () => {
     try {
-      const response = await fetch('/api/aircrafts');
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:4000/aircrafts', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const data = await response.json();
       setAircrafts(data);
     } catch (error) {
@@ -41,10 +46,17 @@ export default function AircraftsPage() {
   const handleAddAircraft = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/aircrafts', {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Vui lòng đăng nhập để thực hiện thao tác này');
+        return;
+      }
+
+      const response = await fetch('http://localhost:4000/aircrafts/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(newAircraft),
       });
@@ -53,9 +65,13 @@ export default function AircraftsPage() {
         setShowAddModal(false);
         setNewAircraft({ manufacturer: '', model: '', total_seats: 0 });
         fetchAircrafts();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Có lỗi xảy ra khi thêm tàu bay');
       }
     } catch (error) {
       console.error('Error adding aircraft:', error);
+      alert('Có lỗi xảy ra khi thêm tàu bay');
     }
   };
 
@@ -64,10 +80,12 @@ export default function AircraftsPage() {
     if (!selectedAircraft) return;
 
     try {
-      const response = await fetch(`/api/aircrafts/${selectedAircraft.aircraft_id}`, {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:4000/aircrafts/update/${selectedAircraft.aircraft_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(selectedAircraft),
       });
@@ -85,8 +103,12 @@ export default function AircraftsPage() {
   const handleDeleteAircraft = async (id: number) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa tàu bay này?')) {
       try {
-        const response = await fetch(`/api/aircrafts/${id}`, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:4000/aircrafts/del/${id}`, {
           method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
 
         if (response.ok) {

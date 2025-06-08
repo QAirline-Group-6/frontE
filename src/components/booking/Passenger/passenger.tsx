@@ -352,13 +352,13 @@ const Passenger: React.FC<PassengerInfoProps> = ({
 
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label className={styles.label}>Ngày sinh (dd/MM/yyyy)</label>
+                    <label className={styles.label}>Ngày sinh (MM/dd/yyyy)</label>
                     <input
                       type="text"
                       className={styles.input}
                       value={passenger.birthDate}
                       onChange={(e) => handleInputChange(index, 'birthDate', e.target.value)}
-                      placeholder="01/01/1990"
+                      placeholder="01/29/1990"
                       required
                     />
                   </div>
