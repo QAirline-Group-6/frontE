@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -12,6 +13,34 @@ import styles from './chart.module.scss';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function AircraftChart() {
+  const [chartData, setChartData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('http://localhost:4000/dashboard/aircraft-statistics')
+      .then((res) => res.json())
+      .then((data) => {
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+        setChartData({
+          labels,
+          datasets: [
+            {
+              data: values,
+              backgroundColor: [
+                '#4285F4',
+                '#EA4335',
+                '#34A853',
+                '#00BCD4',
+                '#FF9800',
+                '#9C27B0',
+                '#607D8B',
+              ],
+            },
+          ],
+        });
+      });
+  }, []);
+
   const options = {
     responsive: true,
     plugins: {
@@ -25,24 +54,11 @@ export default function AircraftChart() {
     },
   };
 
-  const data = {
-    labels: ['Airbus A320', 'Airbus A330', 'Boeing 767', 'Boeing 777'],
-    datasets: [
-      {
-        data: [15, 12, 8, 7],
-        backgroundColor: [
-          '#4285F4',
-          '#EA4335',
-          '#34A853',
-          '#00BCD4',
-        ],
-      },
-    ],
-  };
+  if (!chartData) return <div>Đang tải dữ liệu...</div>;
 
   return (
     <div className={styles.chartContainer}>
-      <Pie options={options} data={data} />
+      <Pie options={options} data={chartData} />
     </div>
   );
 }
