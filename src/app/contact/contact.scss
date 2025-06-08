@@ -90,12 +90,13 @@ $white: #ffffff;
     margin-bottom: 40px;
 
     h1 {
-        font-size: 2.2rem;
+        font-size: 2.3rem;
         color: black;
         margin-bottom: 5px;
+        font-weight: 700;
 
         @include respond-to(mobile) {
-            font-size: 1.7rem;
+            font-size: 1.75rem;
         }
     }
 

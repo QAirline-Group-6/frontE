@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import styles from './detail.module.scss';
+import { FaCalendarAlt } from "react-icons/fa";
+import { FaClock } from "react-icons/fa6";
+import { FaUser } from "react-icons/fa";
 
 interface Airport {
   name: string;
@@ -241,15 +244,15 @@ export default function BookingDetailPage() {
               </div>
               <div className={styles.flightMetaDetails}>
                 <div className={styles.metaItem}>
-                  <span>🗓️ Ngày khởi hành</span>
+                  <span><FaCalendarAlt /> Ngày khởi hành</span>
                   <p>{new Date(ticket.flight.departure_time).toLocaleDateString('vi-VN')}</p>
                 </div>
                 <div className={styles.metaItem}>
-                  <span>⏱️ Thời gian bay</span>
+                  <span><FaClock /> Thời gian bay</span>
                   <p>{calculateFlightDuration(ticket.flight.departure_time, ticket.flight.arrival_time)}</p>
                 </div>
                 <div className={styles.metaItem}>
-                  <span>👤 Hành khách</span>
+                  <span><FaUser /> Hành khách</span>
                   <p>1</p>
                 </div>
               </div>

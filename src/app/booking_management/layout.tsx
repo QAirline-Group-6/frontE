@@ -16,7 +16,7 @@ export default function BookingManagementLayout({
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.pageTitle}>
-            QUẢN LÝ VÉ
+            Quản lý vé
           </h1>
         </div>
       </header>

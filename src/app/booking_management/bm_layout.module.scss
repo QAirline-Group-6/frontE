@@ -1,6 +1,6 @@
 .layoutContainer {
     min-height: 100vh;
-    background-image: url('../../../public/Assets/vietnam2.jpg');
+    background-image: url('../../../public/Assets/image13.jpg');
     background-size: cover;
 }
 
@@ -16,19 +16,21 @@
 }
 
 .pageTitle {
-    font-size: 2rem;
-    font-weight: 650;
+    font-size: 2.3rem;
+    font-weight: 700;
     text-align: center;
     color: black;
     margin-top: 8%;
     letter-spacing: 0.5px;
 
     @media (max-width: 768px) {
-        font-size: 1.5rem;
+        font-size: 2rem;
+        margin-bottom: 2rem;
     }
 
     @media (max-width: 480px) {
-        font-size: 1.25rem;
+        margin-top: 15%;
+        font-size: 1.75rem;
        
     }
 }
