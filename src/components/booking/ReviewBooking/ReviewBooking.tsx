@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 import styles from './reviewBooking.module.scss'; // Import styles từ FlightBooking
 import { PassengerData, FlightDetails } from '../Passenger/passenger'; // Import types PassengerData và FlightDetails từ Passenger.tsx
 import { FaPlane, FaUser, FaChair, FaMoneyBillWave } from 'react-icons/fa';
@@ -35,6 +37,7 @@ const ReviewBooking: React.FC<ReviewBookingProps> = ({
   const [outboundSeatDetails, setOutboundSeatDetails] = useState<Seat[]>([]);
   const [returnSeatDetails, setReturnSeatDetails] = useState<Seat[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const fetchSeatDetails = async () => {
@@ -115,6 +118,10 @@ const ReviewBooking: React.FC<ReviewBookingProps> = ({
       setIsSubmitting(true);
       setError(null);
 
+      if (!user || !user.id) {
+        throw new Error('Vui lòng đăng nhập để đặt vé');
+      }
+
       // Generate booking code based on timestamp
       const timestamp = new Date().getTime();
       const random = Math.floor(Math.random() * 1000);
@@ -146,7 +153,7 @@ const ReviewBooking: React.FC<ReviewBookingProps> = ({
       // Prepare booking data
       const bookingData = {
         booking_code: bookingCode,
-        user_id: 11,
+        user_id: user.id,
         total_amount: getTotalPrice(),
         status: "confirmed",
         bookings: [
@@ -367,7 +374,7 @@ const ReviewBooking: React.FC<ReviewBookingProps> = ({
                 </div>
                 <div className={styles.flightLine}>
                   <div className={styles.duration}>{returnFlightDetails.duration}</div>
-                  <div className={styles.planeIcon}>✈</div>
+                  {/* <div className={styles.planeIcon}>✈</div> */}
                 </div>
                 <div className={styles.airport}>
                   <span className={styles.code}>{returnFlightDetails.arrival.code}</span>
