@@ -1,14 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './profile.module.scss';
 
+interface UserProfile {
+  user_id: number;
+  username: string;
+  email: string;
+  phone: string;
+}
+
 export default function ProfilePage() {
-  const [basicInfo, setBasicInfo] = useState({
-    uid: 'AD001',
-    firstName: 'Admin',
-    lastName: 'User',
-    email: 'admin@qairline.com'
+  const [profile, setProfile] = useState<UserProfile>({
+    user_id: 0,
+    username: '',
+    email: '',
+    phone: ''
   });
 
   const [passwords, setPasswords] = useState({
@@ -17,22 +24,104 @@ export default function ProfilePage() {
     confirmPassword: ''
   });
 
-  const handleBasicInfoUpdate = () => {
-    // Handle basic info update
-    console.log('Updating basic info:', basicInfo);
-  };
+  // Fetch user profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:4000/users/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+    fetchProfile();
+  }, []);
 
-  const handlePasswordChange = () => {
-    // Handle password change
-    console.log('Changing password:', passwords);
-  };
+  const handleBasicInfoUpdate = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:4000/users/put/${profile.user_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          username: profile.username,
+          email: profile.email,
+          phone: profile.phone
+        })
+      });
 
-  const handleAccountDelete = () => {
-    // Handle account deletion
-    if (window.confirm('Bạn có chắc chắn muốn xóa tài khoản?')) {
-      console.log('Deleting account');
+      if (response.ok) {
+        alert('Cập nhật thông tin thành công');
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Có lỗi xảy ra khi cập nhật thông tin');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Có lỗi xảy ra khi cập nhật thông tin');
     }
   };
+
+  const handlePasswordChange = async () => {
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      alert('Mật khẩu mới không khớp');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Vui lòng đăng nhập lại');
+        window.location.href = '/auth/login';
+        return;
+      }
+
+      console.log('Token:', token); // Debug token
+
+      const response = await fetch('http://localhost:4000/users/resetPassword', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          email: profile.email,
+          password: passwords.newPassword
+        })
+      });
+
+      console.log('Response status:', response.status); // Debug response status
+
+      const data = await response.json();
+      console.log('Response data:', data); // Debug response data
+
+      if (response.ok) {
+        alert('Đổi mật khẩu thành công');
+        setPasswords({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      } else {
+        alert(data.message || 'Có lỗi xảy ra khi đổi mật khẩu');
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      alert('Có lỗi xảy ra khi đổi mật khẩu');
+    }
+  };
+
 
   return (
     <div className={styles.profileContainer}>
@@ -41,35 +130,35 @@ export default function ProfilePage() {
       <div className={styles.section}>
         <h2>Thông tin cơ bản</h2>
         <div className={styles.formGroup}>
-          <label>UID:</label>
-          <span>{basicInfo.uid}</span>
+          <label>ID:</label>
+          <span>{profile.user_id}</span>
         </div>
         <div className={styles.formGroup}>
-          <label>Tên:</label>
+          <label>Tên người dùng:</label>
           <input
             type="text"
-            value={basicInfo.firstName}
-            onChange={(e) => setBasicInfo({ ...basicInfo, firstName: e.target.value })}
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label>Họ:</label>
-          <input
-            type="text"
-            value={basicInfo.lastName}
-            onChange={(e) => setBasicInfo({ ...basicInfo, lastName: e.target.value })}
+            value={profile.username}
+            onChange={(e) => setProfile({ ...profile, username: e.target.value })}
           />
         </div>
         <div className={styles.formGroup}>
           <label>Email:</label>
           <input
             type="email"
-            value={basicInfo.email}
-            onChange={(e) => setBasicInfo({ ...basicInfo, email: e.target.value })}
+            value={profile.email}
+            onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Số điện thoại:</label>
+          <input
+            type="tel"
+            value={profile.phone}
+            onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
           />
         </div>
         <button className={styles.primaryButton} onClick={handleBasicInfoUpdate}>
-          Chỉnh sửa
+          Cập nhật thông tin
         </button>
       </div>
 
@@ -92,7 +181,7 @@ export default function ProfilePage() {
           />
         </div>
         <div className={styles.formGroup}>
-          <label>Gõ lại mật khẩu mới:</label>
+          <label>Xác nhận mật khẩu mới:</label>
           <input
             type="password"
             value={passwords.confirmPassword}
@@ -100,21 +189,11 @@ export default function ProfilePage() {
           />
         </div>
         <button className={styles.primaryButton} onClick={handlePasswordChange}>
-          Lưu thay đổi
+          Đổi mật khẩu
         </button>
       </div>
 
-      <div className={styles.section}>
-        <h2>Cài đặt tài khoản</h2>
-        <div className={styles.accountActions}>
-          <button className={styles.deleteButton} onClick={handleAccountDelete}>
-            Xóa tài khoản
-          </button>
-          <button className={styles.logoutButton} onClick={() => window.location.href = '/auth/login'}>
-            Đăng xuất
-          </button>
-        </div>
-      </div>
+      
     </div>
   );
 }

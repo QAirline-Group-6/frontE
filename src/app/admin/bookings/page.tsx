@@ -23,7 +23,17 @@ export default function BookingsPage() {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('/api/bookings');
+      const token = localStorage.getItem('token'); // Get token from localStorage
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('http://localhost:4000/bookings', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

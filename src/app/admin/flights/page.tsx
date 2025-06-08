@@ -44,7 +44,20 @@ export default function FlightsPage() {
 
   const fetchFlights = async () => {
     try {
-      const response = await fetch('/api/flights');
+      const token = localStorage.getItem('token'); // Get token from localStorage
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('http://localhost:4000/flights/searchAll', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setFlights(data);
     } catch (error) {
@@ -55,10 +68,16 @@ export default function FlightsPage() {
   const handleAddFlight = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/flights', {
+      const token = localStorage.getItem('token'); // Get token from localStorage
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('http://localhost:4000/flights/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(newFlight),
       });
@@ -78,9 +97,13 @@ export default function FlightsPage() {
           status: 'scheduled',
         });
         fetchFlights();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
     } catch (error) {
       console.error('Error adding flight:', error);
+      alert(`Error adding flight: ${error}`);
     }
   };
 
@@ -89,10 +112,16 @@ export default function FlightsPage() {
     if (!selectedFlight) return;
 
     try {
-      const response = await fetch(`/api/flights/${selectedFlight.flight_id}`, {
+      const token = localStorage.getItem('token'); // Get token from localStorage
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`http://localhost:4000/flights/update/${selectedFlight.flight_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(selectedFlight),
       });
@@ -101,24 +130,40 @@ export default function FlightsPage() {
         setShowEditModal(false);
         setSelectedFlight(null);
         fetchFlights();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
     } catch (error) {
       console.error('Error updating flight:', error);
+      alert(`Error updating flight: ${error}`);
     }
   };
 
   const handleDeleteFlight = async (id: number) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa chuyến bay này?')) {
       try {
-        const response = await fetch(`/api/flights/${id}`, {
+        const token = localStorage.getItem('token'); // Get token from localStorage
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(`http://localhost:4000/flights/del/${id}`, {
           method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
 
         if (response.ok) {
           fetchFlights();
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
       } catch (error) {
         console.error('Error deleting flight:', error);
+        alert(`Error deleting flight: ${error}`);
       }
     }
   };
