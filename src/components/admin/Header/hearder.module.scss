@@ -1,57 +1,99 @@
 .header {
   background-color: white;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: black;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
-}
-
-.headerContent {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.userInfo {
-  position: relative;
+  height: 60px;
   display: flex;
   align-items: center;
-  cursor: pointer;
 
-  &:hover .userActions {
+  &Content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
     display: flex;
+    justify-content: flex-end;
   }
-}
 
-.userIcon {
-  font-size: 2rem;
-  color: #666;
-}
-
-.userActions {
-  display: none;
-  flex-direction: column;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  padding: 0.5rem;
-  min-width: 120px;
-
-  button {
-    background: none;
-    border: none;
-    padding: 0.5rem 1rem;
-    text-align: left;
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
     cursor: pointer;
-    color: #333;
-    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 
     &:hover {
-      background-color: #f5f5f5;
+      background-color: rgba(255, 255, 255, 0.1);
+
+      .userActions {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  .userIcon {
+    font-size: 28px;
+    color: black;
+  }
+
+  .userName {
+    font-weight: 500;
+    font-size: 16px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .userActions {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 8px 0;
+    min-width: 150px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 10;
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      text-align: left;
+      color: #2c3e50;
+      font-size: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #f5f5f5;
+        color: #15a3ef;
+      }
+
+      &:first-child {
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+      }
+
+      &:last-child {
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+      }
     }
   }
 }
