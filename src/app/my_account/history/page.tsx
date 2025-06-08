@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import styles from './history.module.scss';
 import axios from 'axios';
-import { useRouter } from 'next/navigation'; // Assuming useRouter is needed for potential navigation
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 interface BookingHistoryItem {
   date: string;
@@ -17,27 +19,34 @@ export default function HistoryPage() {
   const [historyData, setHistoryData] = useState<BookingHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const router = useRouter(); // Initialize useRouter
-
-  // Placeholder for userId. In a real app, this would come from auth context/local storage.
-  // For demonstration, using 11 as per your backend API example: /users/11/bookings/detail
-  const userId = '11'; 
+  const router = useRouter();
+  
+  // Get userId from Redux store
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
+  
+  useEffect(() => {
+    if (!userId) {
+      setError('Vui lòng đăng nhập để xem lịch sử.');
+      router.push('/login');
+      return;
+    }
+    fetchHistory();
+  }, [userId]);
 
   const fetchHistory = async (start?: string, end?: string) => {
+    if (!userId) return;
+    
     setLoading(true);
     setError('');
     try {
-      // Get the authentication token from localStorage or your auth context
-      const token = localStorage.getItem('token'); // Replace with your actual token retrieval logic
+      const token = localStorage.getItem('token');
       if (!token) {
         setError('Bạn chưa đăng nhập. Vui lòng đăng nhập để xem lịch sử.');
         setLoading(false);
-        // Optionally redirect to login page
-        // router.push('/login'); 
+        router.push('/login');
         return;
       }
 
-      // Construct URL with optional date parameters
       const params = new URLSearchParams();
       if (start) {
         params.append('startDate', start);
@@ -46,7 +55,6 @@ export default function HistoryPage() {
         params.append('endDate', end);
       }
       
-      // Use the correct API endpoint and user ID
       const response = await axios.get(`http://localhost:4000/users/${userId}/bookings/detail?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -68,8 +76,6 @@ export default function HistoryPage() {
       console.error('Error fetching booking history:', err);
       if (err.response && err.response.status === 401) {
         setError('Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.');
-        // Optionally redirect to login page
-        // router.push('/login');
       } else {
         setError(err.response?.data?.message || 'Có lỗi xảy ra khi tải lịch sử đặt chỗ.');
       }
@@ -77,10 +83,6 @@ export default function HistoryPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchHistory(); // Fetch data on initial load
-  }, []); // Empty dependency array means it runs once on mount
 
   const handleSearch = () => {
     fetchHistory(fromDate, toDate);
